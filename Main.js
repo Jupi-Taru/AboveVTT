@@ -1712,6 +1712,7 @@ $(function() {
 			window.PLAYER_IMG = img;
 			window.PLAYER_SHEET = sheet;
 			window.PLAYER_NAME = name;
+			window.PLAYER_ID = getPlayerIDFromSheet(sheet);
 			window.DM = false;
 			init_ui();
 		});
@@ -1783,6 +1784,7 @@ $(function() {
 			window.DM = true;
 			window.PLAYER_SHEET = false;
 			window.PLAYER_NAME = "THE DM";
+			window.PLAYER_ID = false;
 			window.PLAYER_IMG = 'https://media-waterdeep.cursecdn.com/attachments/thumbnails/0/14/240/160/avatar_2.png';
 			init_ui();
 		});
