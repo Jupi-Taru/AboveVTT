@@ -28,7 +28,7 @@ function init_monster_panel() {
 		list.css("max-width", "400px");
 	
 		// prevent right click menu on the monster image so we can use our own custom menu
-		list.on("contextmenu", ".monster-row__cell--avatar", function(e) {
+		list.on("mousedown", ".monster-row__cell--avatar", function(e) {
 			e.preventDefault();
 		});
 
@@ -36,6 +36,7 @@ function init_monster_panel() {
 		list.on("mousedown", ".monster-row__cell--avatar", function(e) {
 
 			e.stopPropagation();
+			e.cancelBubble=true;
 			e.target = this; // hack per passarlo a token_button
 
 			let monsterImage = $(this);
@@ -56,14 +57,13 @@ function init_monster_panel() {
 			$("#custom-img-src-anchor").contextMenu();
 		});
 
-		list.on("contextmenu", "button.monster-row__add-button", function(e) {
+		list.on("mousedown", "button.monster-row__add-button", function(e) {
 			e.preventDefault();
 		});
 
-		list.on("mousedown", "button.monster-row__add-button", function(e) {
-
-
+		list.on("click", "button.monster-row__add-button", function(e) {
 			e.stopPropagation();
+			e.cancelBubble=true;
 			e.target = this; // hack per passarlo a token_button
 			let button = $(this);
 			console.log(button.outerHTML());
@@ -109,18 +109,15 @@ function init_monster_panel() {
 
 		});
 
-		list.on("click", ".monster-row", function() { // BAD HACKZZZZZZZZZZZZZ
-			var monsterid = $(this).attr("id").replace("monster-row-", "");
-			window.StatHandler.getStat(monsterid, function(stat) {
-				setTimeout(function() {
-					scan_monster($("#iframe-monster-panel").contents().find(".ddbeb-modal"), stat);
-					$("#iframe-monster-panel").contents().find(".add-monster-modal__footer").remove();
-				}, 1000);
+		list.on("mousedown", ".monster-row", function(e) { 
+			if(e.which == 1)
+			{
+				var monsterid = $(this).attr("id").replace("monster-row-", "");
+				window.StatHandler.getStat(monsterid, function(stat) {
+					scan_monster_on_load(stat, 500, 10000);
 
-			});
-
-
-
+				});
+			}
 		});
 	});
 	panel.append(iframe);
@@ -133,5 +130,29 @@ function init_monster_panel() {
 		$("#iframe-monster-panel").height(window.innerHeight - 50);
 	});
 	iframe.attr("src", "/encounter-builder");
+}
+
+function scan_monster_on_load(stat,ticks, maxtimeout)
+{
+	let mon_stat_block = $("#iframe-monster-panel").contents().find(".add-monster-modal__stat-block");
+	if(mon_stat_block.length == 0)
+	{
+		if( ticks < maxtimeout)
+		{
+			ticks += 500;
+			setTimeout(function() {
+				scan_monster_on_load(stat,ticks, maxtimeout);
+				$("#iframe-monster-panel").contents().find(".add-monster-modal__footer").remove();
+			}, 500);
+		}
+		else
+		{
+			return;
+		}
+	}
+	else{
+		scan_monster($("#iframe-monster-panel").contents().find(".ddbeb-modal"), stat);
+		$("#iframe-monster-panel").contents().find(".add-monster-modal__footer").remove();
+	}
 }
 
