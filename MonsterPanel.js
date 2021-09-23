@@ -134,9 +134,15 @@ function init_monster_panel() {
 
 function scan_monster_on_load(stat,ticks, maxtimeout)
 {
+	// Look for the monster stat block every 500 ms until maxtimout is reached
 	let mon_stat_block = $("#iframe-monster-panel").contents().find(".add-monster-modal__stat-block");
 	if(mon_stat_block.length == 0)
 	{
+		if($("#iframe-monster-panel").contents().find(".monster-stat-block-no-access").length > 0)
+		{
+			// no access
+			return;
+		}
 		if( ticks < maxtimeout)
 		{
 			ticks += 500;
