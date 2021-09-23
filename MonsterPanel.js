@@ -28,7 +28,7 @@ function init_monster_panel() {
 		list.css("max-width", "400px");
 	
 		// prevent right click menu on the monster image so we can use our own custom menu
-		list.on("mousedown", ".monster-row__cell--avatar", function(e) {
+		list.on("contextmenu", ".monster-row__cell--avatar", function(e) {
 			e.preventDefault();
 		});
 
