@@ -71,6 +71,7 @@ function init_jitsi() {
 
 	//You must wait for the local participant to join the conference before attempting to execute any commands against the api 
 	window.jitsiAPI.addEventListener('videoConferenceJoined', jitsi_startup)
+	$("#meet").css("position", "fixed").css("top", "").css("height", "120px").css("left", "50px").css("width", "75%").css("bottom", "10px");
 }
 
 // This only gets used once, the very first time after you start video
