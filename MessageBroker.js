@@ -224,14 +224,14 @@ class MessageBroker {
 			connectionId: self.connection_id,
 			timestamp: Date.now(),
 		}
-		if(!(msg.eventType=="custom/myVTT/msgChunk"))
-			self.sendMessage("custom/myVTT/confirm", confirmation, false);
-		
+		self.sendMessage("custom/myVTT/confirm", confirmation, false);
+
 		// clear out any leftover message chunks
 		if (this.message_chunks.hasOwnProperty(msg.id)) {
 			delete this.message_chunks[msg.id];
 		}
-		
+
+
 		if (!self.received_messages.has(msg.id))
 		{
 			const maxReceivedMessageSize = 1000;
@@ -242,8 +242,8 @@ class MessageBroker {
 				let numToDelete = this.received_messages.size - maxReceivedMessageSize;
 				for (var i = 0; i < numToDelete; i++) {
 					self.received_messages.delete(receivedKeys.next().value);
-                		}
-			}
+                }
+            }
 		}
 		else
 		{
@@ -547,14 +547,10 @@ class MessageBroker {
 			console.log("fatto setRemoteDescription");
 		}
 
-		if (msg.eventType == 'custom/myVTT/msgChunk') {
-			self.handleMessageChunk(msg);
-        	}
-		
 		if (msg.eventType == 'custom/myVTT/goodbye') {
 			self.handleGoodbye(msg);
 		}
-		
+
 		// just in case
 		if (msg.eventType == "custom/myVTT/MsgBundle") {
 			self.handleMessageBundle(msg);
@@ -648,7 +644,7 @@ class MessageBroker {
 				window.MB.sendMessage('custom/myVTT/token', cur.options);
 			}
 		}
-    	}
+    }
 	
 	convertChat(data,local=false) {
 		//Security logic to prevent content being sent which can execute JavaScript.
@@ -863,10 +859,10 @@ class MessageBroker {
 			}
 			else {
 				this.handleMessage(msg);
-            		}
-        	}
-    	}
-	
+            }
+        }
+    }
+
 	handleGoodbye(msg) {
 		let goodbye = msg.data;
 
@@ -880,8 +876,9 @@ class MessageBroker {
 			$("#streamer-canvas-" + goodbye.mediaStreamId).remove();
 		}
 
-    	}
-	
+    }
+
+
 	inject_chat(injected_data) {
 		var msgid = this.chat_id + this.chat_counter++;
 
@@ -937,11 +934,11 @@ class MessageBroker {
 	}
 
 
-	sendMessage(eventType, data, getConfirmation = true,msgid = null) {
+	sendMessage(eventType, data, getConfirmation = true) {
 		var self = this;
 		const messageMaxSize = 42000;
 		var message = {
-			id: msgid?msgid:uuid(),
+			id: uuid(),
 			datetime: Date.now(),
 			source: "web",
 			gameId: this.gameid,
@@ -953,7 +950,6 @@ class MessageBroker {
 			data: data,
 			// entityId :"43263440", proviamo a non metterla
 			// entityType:"character", // MOLTO INTERESSANTE. PENSO VENGA USATO PER CAPIRE CHE IMMAGINE METTERCI.
-			connectionId: this.connection_id,
 		};
 
 		var messageJSON = JSON.stringify(message);
@@ -963,18 +959,20 @@ class MessageBroker {
 		else {
 			if (this.ws.readyState == this.ws.OPEN) {
 				this.ws.send(messageJSON);
+				//self.sent_messages.push(message.id);
 			}
 			else { // TRY TO RECOVER
 				get_cobalt_token(function (token) {
 					self.loadWS(token, function () {
 						// TODO, CONSIDER ADDING A SYNCMEUP / SCENE PAIR HERE
 						self.ws.send(messageJSON);
+						//self.sent_messages.push(message.id);
 					});
 				});
 
 			}
-        	}
-		
+		}
+
 		if (getConfirmation) {
 			self.message_confirmations.set(message.id, []);
 			self.unconfirmed_messages[message.id] = message;
@@ -1001,7 +999,7 @@ class MessageBroker {
 			setTimeout(function (_chunk, _msgId, _chunkNum, _chunks) {
 				window.MB.sendMessageChunk(_chunk, _msgId, _chunkNum, _chunks);
 			}, chunkNum * 250, chunk, msgId, chunkNum, chunks);
-        	}
+        }
 	}
 
 	sendMessageChunk(chunk, msgId, chunkNum, chunks) {
@@ -1012,8 +1010,9 @@ class MessageBroker {
 			chunks: chunks,
 			chunk: chunk,
 		}
-		self.sendMessage('custom/myVTT/msgChunk', data,false);
+		self.sendMessage('custom/myVTT/msgChunk', data, false);
 	}
+
 	
 	resendUnconfirmedMessages(repeat_delay_ms, timeout_ms, minwait_ms=1000){
 		// loop through the messages in unconfirmed messages.
@@ -1050,7 +1049,6 @@ class MessageBroker {
 							if(msgAge_ms >= timeout_ms)
 							{
 								usersToRemove.push(onlineUserId);
-								console.warn("MESSAGE LOST. USER TIMED OUT");
 							}
 						}
 					}
@@ -1126,3 +1124,4 @@ class MessageBroker {
 	}
 
 }
+
