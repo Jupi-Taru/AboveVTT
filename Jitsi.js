@@ -64,27 +64,21 @@ function init_layout(tileLayout) {
 }
 
 function init_jitsi_popout() {
-	window.jitsiAPI.dispose()
+	let jitsiFrame = $("#jitsi_container > iframe");
+	let jitsiURL = jitsiFrame.attr("src");
+	window.jitsiAPI.dispose();
 	$("#meet").remove();
-	pop = window.open("", "", "height=1000,width=1000,menubar=no,status=no,toolbar=no");
-	pop.onbeforeunload = init_jitsi_box;
-	pop.document.body.id = 'jitsi_container';
-	pop.document.title = 'Above VTT';
-	pop.window.gameId = window.gameId;
-
-	load = document.createElement('script');
-	load.src = 'https://meet.jit.si/external_api.js';
-
-	load.onload = function () {
-		script = document.createElement('script');
-		script.innerHTML = [
-			init_jitsi.toString(),
-			init_layout.toString(),
-			"init_jitsi(true)",
-		].join(';\n');
-		pop.document.head.appendChild(script);
-	};
-	pop.document.head.appendChild(load);
+	var pop = window.open(jitsiURL, "", "height=1000,width=1000,menubar=no,status=no,toolbar=no");
+	var interval = window.setInterval(function () {
+		try {
+			if (pop == null || pop.closed) {
+				window.clearInterval(interval);
+				init_jitsi_box();
+			}
+		}
+		catch (e) {
+		}
+	}, 500);
 }
 
 function init_jitsi_box() {
